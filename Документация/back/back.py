@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -8,7 +9,7 @@ import os
 from sqlalchemy.orm import Session
 
 # Import database modules
-from database.database import engine, get_db
+from database.database import get_db
 from models import models
 from schemas import schemas
 from crud import crud
@@ -20,26 +21,46 @@ from auth.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
 
-app = FastAPI(title="Ресторан Гастрономия API", version="1.0.0")
+def parse_allowed_origins() -> List[str]:
+    raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+    origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+    return origins or ["*"]
+
+
+def should_seed_sample_data() -> bool:
+    return os.getenv("INIT_SAMPLE_DATA", "true").lower() in {"1", "true", "yes", "on"}
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    from database.init_db import init_db
+
+    init_db(seed_sample_data=should_seed_sample_data())
+    yield
+
+
+app = FastAPI(
+    title="Ресторан Гастрономия API",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 
 # Создаем директорию для хранения изображений
 IMAGES_DIR = "images"
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
 # Настройка CORS
+allowed_origins = parse_allowed_origins()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # В продакшене укажите конкретный домен
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=allowed_origins != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Подключаем статические файлы для изображений
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
-
-# Создаем таблицы в базе данных
-models.Base.metadata.create_all(bind=engine)
 
 # Корневой эндпоинт
 @app.get("/")
@@ -472,9 +493,5 @@ async def health_check(db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     import uvicorn
-    from database.init_db import init_db
-
-    # Initialize the database with sample data
-    init_db()
 
     uvicorn.run(app, host="0.0.0.0", port=3344)
