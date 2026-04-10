@@ -13,4 +13,4 @@ COPY . .
 
 EXPOSE 3344
 
-CMD ["python", "back.py"]
+CMD ["uvicorn", "back:app", "--host", "0.0.0.0", "--port", "3344"]
