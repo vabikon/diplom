@@ -1,0 +1,10 @@
+local
+page.html
+front.html
+back.html
+docs.html
+srcs.html
+dispatcher.json
+cookies.txt
+page-headers.txt
+test-package.json
