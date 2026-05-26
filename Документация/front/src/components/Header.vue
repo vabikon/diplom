@@ -20,7 +20,7 @@
             <span
               class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 bg-clip-text text-transparent animate-gradient"
             >
-              Мангал Хаус
+              Гастрономия
             </span>
             <span class="text-xs text-gray-400 tracking-widest"
               >RESTAURANT</span

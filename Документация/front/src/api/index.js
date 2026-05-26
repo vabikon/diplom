@@ -9,36 +9,12 @@ const api = axios.create({
   },
 });
 
-// Интерцептор для добавления JWT токена к защищенным запросам
+// Интерцептор для добавления JWT токена к запросам администратора
 api.interceptors.request.use(
   (config) => {
-    // Добавляем токен к защищенным запросам
-    const protectedMethods = ["post", "put", "delete"];
-    const publicEndpoints = ["/reviews", "/orders"]; // POST /reviews и /orders доступны без токена
-
-    const isProtected = protectedMethods.includes(config.method.toLowerCase());
-    const isPublicEndpoint = publicEndpoints.some((endpoint) =>
-      config.url.startsWith(endpoint)
-    );
-
-    // Добавляем токен для всех защищенных запросов, кроме публичных эндпоинтов
-    if (isProtected && !isPublicEndpoint) {
-      const token = localStorage.getItem("adminToken");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-
-    // Добавляем токен для PUT и DELETE даже на публичных эндпоинтах
-    if (
-      (config.method.toLowerCase() === "put" ||
-        config.method.toLowerCase() === "delete") &&
-      isPublicEndpoint
-    ) {
-      const token = localStorage.getItem("adminToken");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     console.log(
@@ -248,9 +224,24 @@ export const imageApi = {
 
 // API для бронирования стола
 export const bookingApi = {
-  // Создать бронирование стола
   createReservation(data) {
     return api.post("/table-reservations", data);
+  },
+
+  getAll() {
+    return api.get("/table-reservations");
+  },
+
+  getById(id) {
+    return api.get(`/table-reservations/${id}`);
+  },
+
+  updateStatus(id, status) {
+    return api.put(`/table-reservations/${id}/status`, { status });
+  },
+
+  delete(id) {
+    return api.delete(`/table-reservations/${id}`);
   },
 };
 

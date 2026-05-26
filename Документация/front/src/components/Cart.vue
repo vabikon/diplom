@@ -54,7 +54,7 @@
         </div>
         <p class="text-gray-400 text-lg mb-8 text-center">Ваша корзина пуста</p>
         <button
-          @click="$emit('close')"
+          @click="continueShopping"
           class="px-6 py-3 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 text-white rounded-xl hover:border-orange-500/50 transition-all duration-300 flex items-center gap-2"
         >
           <span>Продолжить покупки</span>
@@ -389,6 +389,10 @@ export default {
       if (confirm("Вы уверены, что хотите очистить корзину?")) {
         this.CLEAR_CART();
       }
+    },
+    continueShopping() {
+      this.$emit("close");
+      this.$router.push("/menu");
     },
     checkout() {
       this.showPhoneDialog = true;

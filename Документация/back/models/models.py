@@ -61,6 +61,18 @@ class Order(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 
+class TableReservation(Base):
+    __tablename__ = "table_reservations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    customer_phone = Column(String, nullable=False, index=True)
+    reservation_type = Column(String, nullable=False, default="table_reservation")
+    source = Column(String, nullable=True)
+    status = Column(String, nullable=False, default="pending")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
 class User(Base):
     __tablename__ = "users"
 

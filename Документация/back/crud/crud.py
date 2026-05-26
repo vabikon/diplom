@@ -1,7 +1,7 @@
 # CRUD operations
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from models.models import MenuItem, Review, GalleryImage, Order, User
+from models.models import MenuItem, Review, GalleryImage, Order, TableReservation, User
 from schemas import schemas
 from auth.auth import get_password_hash
 import json
@@ -9,6 +9,7 @@ from fastapi import HTTPException
 
 # Constants
 VALID_ORDER_STATUSES = ["pending", "confirmed", "preparing", "ready", "delivered", "cancelled"]
+VALID_RESERVATION_STATUSES = ["pending", "confirmed", "completed", "cancelled"]
 
 
 # MenuItem CRUD operations
@@ -329,6 +330,90 @@ def delete_order(db: Session, order_id: int):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=f"Error deleting order: {str(e)}")
+
+
+# Table reservation CRUD operations
+def get_table_reservation(db: Session, reservation_id: int):
+    return db.query(TableReservation).filter(TableReservation.id == reservation_id).first()
+
+
+def get_table_reservations(db: Session, skip: int = 0, limit: int = 100):
+    return (
+        db.query(TableReservation)
+        .order_by(TableReservation.id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def create_table_reservation(db: Session, reservation: schemas.TableReservationCreate):
+    if not reservation.customer_phone:
+        raise HTTPException(status_code=400, detail="Customer phone is required")
+
+    db_reservation = TableReservation(
+        customer_phone=reservation.customer_phone,
+        reservation_type=reservation.reservation_type,
+        source=reservation.source,
+        status="pending",
+    )
+
+    try:
+        db.add(db_reservation)
+        db.commit()
+        db.refresh(db_reservation)
+        return db_reservation
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error creating table reservation: {str(e)}",
+        )
+
+
+def update_table_reservation_status(db: Session, reservation_id: int, status: str):
+    db_reservation = (
+        db.query(TableReservation).filter(TableReservation.id == reservation_id).first()
+    )
+    if not db_reservation:
+        return None
+
+    if status not in VALID_RESERVATION_STATUSES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid status. Valid statuses are: {VALID_RESERVATION_STATUSES}",
+        )
+
+    try:
+        db_reservation.status = status
+        db.commit()
+        db.refresh(db_reservation)
+        return db_reservation
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error updating table reservation status: {str(e)}",
+        )
+
+
+def delete_table_reservation(db: Session, reservation_id: int):
+    db_reservation = (
+        db.query(TableReservation).filter(TableReservation.id == reservation_id).first()
+    )
+    if not db_reservation:
+        return None
+
+    try:
+        db.delete(db_reservation)
+        db.commit()
+        return db_reservation
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error deleting table reservation: {str(e)}",
+        )
 
 
 # Search functionality

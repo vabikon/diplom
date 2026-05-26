@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timedelta
 import uuid
@@ -53,6 +52,7 @@ async def root():
             "reviews": "/api/reviews",
             "gallery": "/api/gallery",
             "orders": "/api/orders",
+            "reservations": "/api/table-reservations",
             "auth": "/api/auth/login"
         }
     }
@@ -306,26 +306,73 @@ async def delete_order(
     return {"message": "Заказ удален"}
 
 # Бронирование стола
-@app.post("/api/table-reservations")
-async def create_reservation(data: dict, db: Session = Depends(get_db)):
+@app.get("/api/table-reservations", response_model=List[schemas.TableReservation])
+async def get_table_reservations(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_admin_user)
+):
+    """Получить все бронирования столов (требует авторизации администратора)"""
+    return crud.get_table_reservations(db, skip=skip, limit=limit)
+
+
+@app.get("/api/table-reservations/{reservation_id}", response_model=schemas.TableReservation)
+async def get_table_reservation(
+    reservation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_admin_user)
+):
+    """Получить бронирование стола по ID (требует авторизации администратора)"""
+    db_reservation = crud.get_table_reservation(db, reservation_id=reservation_id)
+    if db_reservation is None:
+        raise HTTPException(status_code=404, detail="Бронирование не найдено")
+    return db_reservation
+
+
+@app.post("/api/table-reservations", response_model=schemas.TableReservation)
+async def create_reservation(
+    reservation: schemas.TableReservationCreate,
+    db: Session = Depends(get_db)
+):
     """Создать бронирование стола"""
-    # Проверяем наличие номера телефона
-    if "customer_phone" not in data:
-        raise HTTPException(status_code=400, detail="Требуется номер телефона")
+    db_reservation = crud.create_table_reservation(db=db, reservation=reservation)
+    print(
+        "Новое бронирование стола "
+        f"#{db_reservation.id}: {db_reservation.customer_phone}"
+    )
+    return db_reservation
 
-    # В реальном приложении здесь будет создание записи в БД
-    # Для простоты просто возвращаем данные
-    reservation = {
-        "id": str(uuid.uuid4()),
-        "type": "table_reservation",
-        "customer_phone": data["customer_phone"],
-        "created_at": datetime.now().isoformat(),
-        "status": "pending"
-    }
 
-    print(f"Новое бронирование стола: {reservation}")
+@app.put("/api/table-reservations/{reservation_id}/status", response_model=schemas.TableReservation)
+async def update_table_reservation_status(
+    reservation_id: int,
+    status_data: schemas.TableReservationStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_admin_user)
+):
+    """Обновить статус бронирования стола (требует авторизации администратора)"""
+    db_reservation = crud.update_table_reservation_status(
+        db=db,
+        reservation_id=reservation_id,
+        status=status_data.status,
+    )
+    if db_reservation is None:
+        raise HTTPException(status_code=404, detail="Бронирование не найдено")
+    return db_reservation
 
-    return reservation
+
+@app.delete("/api/table-reservations/{reservation_id}")
+async def delete_table_reservation(
+    reservation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_admin_user)
+):
+    """Удалить бронирование стола (требует авторизации администратора)"""
+    db_reservation = crud.delete_table_reservation(db=db, reservation_id=reservation_id)
+    if db_reservation is None:
+        raise HTTPException(status_code=404, detail="Бронирование не найдено")
+    return {"message": "Бронирование удалено"}
 
 # Поиск
 @app.get("/api/search")
@@ -409,6 +456,7 @@ async def health_check(db: Session = Depends(get_db)):
     review_count = db.query(models.Review).count()
     gallery_count = db.query(models.GalleryImage).count()
     order_count = db.query(models.Order).count()
+    reservation_count = db.query(models.TableReservation).count()
 
     return {
         "status": "ok",
@@ -417,7 +465,8 @@ async def health_check(db: Session = Depends(get_db)):
             "menu_items": menu_count,
             "reviews": review_count,
             "gallery_images": gallery_count,
-            "orders": order_count
+            "orders": order_count,
+            "table_reservations": reservation_count
         }
     }
 

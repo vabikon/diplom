@@ -38,7 +38,7 @@
             <h2
               class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6"
             >
-              Мангал Хаус — это философия
+              Гастрономия — это философия
             </h2>
             <p
               class="text-gray-300 text-base sm:text-lg leading-relaxed mb-6 sm:mb-8"
@@ -388,10 +388,10 @@
               <div>
                 <p class="text-gray-500 text-xs sm:text-sm mb-1">Адрес</p>
                 <p class="text-white font-medium text-sm sm:text-base">
-                  Москва, ул. Ресторанная, 15
+                  Ростов-на-Дону, Ченцова 95м
                 </p>
                 <p class="text-gray-400 text-xs sm:text-sm mt-1">
-                  Метро: Охотный ряд (5 мин пешком)
+                  Ростов-на-Дону, Россия
                 </p>
               </div>
             </div>
@@ -643,6 +643,7 @@
 
 <script>
 import Gallery from "@/components/Gallery.vue";
+import { bookingApi } from "@/api";
 import {
   formatRussianPhone,
   isValidRussianPhone,
@@ -770,8 +771,11 @@ export default {
       }
 
       try {
-        // Здесь будет логика отправки заявки на бронирование
-        console.log("Бронирование:", this.bookingPhoneNumber);
+        await bookingApi.createReservation({
+          customer_phone: this.bookingPhoneNumber,
+          reservation_type: "table_reservation",
+          source: "about",
+        });
 
         this.showBookingPhoneDialog = false;
         this.showBookingSuccessDialog = true;

@@ -27,7 +27,7 @@
           <span
             class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent"
           >
-            Мангал Хаус
+            Гастрономия
           </span>
           <p class="text-gray-400 text-sm leading-relaxed max-w-sm mx-auto">
             Место, где рождается настоящий вкус огня. Авторские рецепты и
@@ -92,9 +92,9 @@
               </div>
               <div class="min-w-0 flex-1">
                 <p class="text-white font-medium text-sm">
-                  г. Москва, ул. Мангальная, 15
+                  Ростов-на-Дону, Ченцова 95м
                 </p>
-                <p class="text-gray-400 text-xs">м. Огневая, 5 минут пешком</p>
+                <p class="text-gray-400 text-xs">Ростов-на-Дону, Россия</p>
               </div>
             </div>
 
@@ -306,7 +306,7 @@
             <span
               class="text-2xl font-bold bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent"
             >
-              Мангал Хаус
+              Гастрономия
             </span>
           </div>
 
@@ -406,9 +406,9 @@
               </div>
               <div>
                 <p class="text-white font-medium">
-                  г. Москва, ул. Мангальная, 15
+                  Ростов-на-Дону, Ченцова 95м
                 </p>
-                <p class="text-gray-400 text-sm">м. Огневая, 5 минут пешком</p>
+                <p class="text-gray-400 text-sm">Ростов-на-Дону, Россия</p>
               </div>
             </div>
 
@@ -631,7 +631,7 @@
         <!-- Копирайт -->
         <div class="text-center md:text-left">
           <p class="text-gray-400 text-sm">
-            © 2015-{{ currentYear }} Мангал Хаус. Все права защищены.
+            © 2015-{{ currentYear }} Гастрономия. Все права защищены.
           </p>
           <p class="text-gray-500 text-xs mt-1">
             Традиции огня в современном исполнении

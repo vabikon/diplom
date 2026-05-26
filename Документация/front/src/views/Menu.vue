@@ -172,15 +172,6 @@
           </div>
         </div>
 
-        <!-- Итог -->
-        <div class="max-w-6xl mx-auto pt-4 sm:pt-6 border-t border-gray-800">
-          <p class="text-gray-400 text-center text-sm sm:text-base">
-            Найдено блюд:
-            <span class="text-orange-400 font-semibold">{{
-              filteredItems.length
-            }}</span>
-          </p>
-        </div>
       </div>
     </div>
   </div>

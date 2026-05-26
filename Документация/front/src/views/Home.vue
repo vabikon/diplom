@@ -141,10 +141,11 @@
             v-if="featuredItems.length > 0"
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto"
           >
-            <div
+            <router-link
               v-for="(item, index) in featuredItems"
               :key="item.id"
-              class="group bg-gradient-to-br from-gray-800/70 to-gray-900/70 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden hover:border-orange-500/50 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 opacity-0 animate-slideUp"
+              to="/menu"
+              class="group block bg-gradient-to-br from-gray-800/70 to-gray-900/70 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden hover:border-orange-500/50 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 opacity-0 animate-slideUp"
               :style="`animation-delay: ${0.2 + index * 0.1}s`"
             >
               <!-- Изображение -->
@@ -199,7 +200,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </router-link>
           </div>
 
           <!-- Кнопка "Полное меню" -->
@@ -876,7 +877,8 @@ export default {
       try {
         const response = await bookingApi.createReservation({
           customer_phone: this.bookingPhoneNumber,
-          type: "table_reservation",
+          reservation_type: "table_reservation",
+          source: "home",
         });
 
         this.showBookingPhoneDialog = false;

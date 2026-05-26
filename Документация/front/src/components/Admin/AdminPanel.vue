@@ -13,7 +13,7 @@
               Панель администратора
             </h1>
             <p class="text-gray-400 text-sm">
-              Управление рестораном "Мангал Хаус"
+              Управление рестораном "Гастрономия"
             </p>
           </div>
           <button
@@ -77,6 +77,11 @@
           <div v-show="currentTab === 'orders'" class="animate-fadeIn">
             <OrdersManager @orders-updated="handleOrdersUpdate" />
           </div>
+          <div v-show="currentTab === 'reservations'" class="animate-fadeIn">
+            <ReservationsManager
+              @reservations-updated="handleReservationsUpdate"
+            />
+          </div>
           <div v-show="currentTab === 'reviews'" class="animate-fadeIn">
             <ReviewsManager @reviews-updated="handleReviewsUpdate" />
           </div>
@@ -91,6 +96,7 @@ import MenuManager from "@/components/Admin/MenuManager.vue";
 import GalleryManager from "@/components/Admin/GalleryManager.vue";
 import ReviewsManager from "@/components/Admin/ReviewsManager.vue";
 import OrdersManager from "@/components/Admin/OrdersManager.vue";
+import ReservationsManager from "@/components/Admin/ReservationsManager.vue";
 
 export default {
   name: "AdminPanel",
@@ -99,6 +105,7 @@ export default {
     GalleryManager,
     ReviewsManager,
     OrdersManager,
+    ReservationsManager,
   },
   data() {
     return {
@@ -107,6 +114,7 @@ export default {
         { id: "menu", name: "Управление меню" },
         { id: "gallery", name: "Управление галереей" },
         { id: "orders", name: "Управление заказами" },
+        { id: "reservations", name: "Бронирования столов" },
         { id: "reviews", name: "Управление отзывами" },
       ],
     };
@@ -128,6 +136,10 @@ export default {
 
     handleOrdersUpdate() {
       console.log("Заказы обновлены");
+    },
+
+    handleReservationsUpdate() {
+      console.log("Бронирования обновлены");
     },
 
     handleReviewsUpdate() {

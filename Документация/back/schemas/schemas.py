@@ -190,3 +190,29 @@ class TokenData(BaseModel):
 
 class OrderStatusUpdate(BaseModel):
     status: str
+
+
+class TableReservationBase(BaseModel):
+    customer_phone: str
+    reservation_type: str = "table_reservation"
+    source: Optional[str] = None
+    status: str = "pending"
+
+
+class TableReservationCreate(BaseModel):
+    customer_phone: str
+    reservation_type: str = "table_reservation"
+    source: Optional[str] = None
+
+
+class TableReservation(TableReservationBase):
+    id: int
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class TableReservationStatusUpdate(BaseModel):
+    status: str
