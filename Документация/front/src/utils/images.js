@@ -6,7 +6,7 @@
  */
 export const normalizeImageUrl = (
   url,
-  baseUrl = process.env.VITE_API_URL || "http://localhost:3000/api"
+  baseUrl = import.meta.env.VITE_API_BASE_URL || "/api"
 ) => {
   if (!url || typeof url !== "string") {
     return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjZjVmNWY1Ii8+PHRleHQgeD0iMjAwIiB5PSIxNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R2FzdHJvbm9taWE8L3RleHQ+PC9zdmc+";
@@ -26,12 +26,17 @@ export const normalizeImageUrl = (
   }
 
   // Для относительных путей
+  const resolvedBaseUrl =
+    typeof window !== "undefined" && baseUrl.startsWith("/")
+      ? `${window.location.origin}${baseUrl}`
+      : baseUrl;
+
   if (url.startsWith("/")) {
-    return `${baseUrl.replace("/api", "")}${url}`;
+    return `${resolvedBaseUrl.replace("/api", "")}${url}`;
   }
 
   // Если путь без слэша
-  return `${baseUrl.replace("/api", "")}/${url}`;
+  return `${resolvedBaseUrl.replace("/api", "")}/${url}`;
 };
 
 /**

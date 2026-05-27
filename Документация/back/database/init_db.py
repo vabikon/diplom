@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def init_db():
+def init_db(seed_sample_data: bool = True):
     # Create tables
     Base.metadata.create_all(bind=engine)
 
@@ -21,11 +21,6 @@ def init_db():
     db = SessionLocal()
     
     try:
-        # Check if data already exists
-        if db.query(MenuItem).count() > 0:
-            print("Database already initialized with data")
-            return
-        
         # Menu items
         menu_items_data = [
             {
@@ -120,9 +115,10 @@ def init_db():
             }
         ]
 
-        for item_data in menu_items_data:
-            menu_item = MenuItem(**item_data)
-            db.add(menu_item)
+        if seed_sample_data and db.query(MenuItem).count() == 0:
+            for item_data in menu_items_data:
+                menu_item = MenuItem(**item_data)
+                db.add(menu_item)
 
         # Reviews
         reviews_data = [
@@ -158,9 +154,10 @@ def init_db():
             }
         ]
 
-        for review_data in reviews_data:
-            review = Review(**review_data)
-            db.add(review)
+        if seed_sample_data and db.query(Review).count() == 0:
+            for review_data in reviews_data:
+                review = Review(**review_data)
+                db.add(review)
 
         # Gallery images
         gallery_images_data = [
@@ -214,27 +211,30 @@ def init_db():
             }
         ]
 
-        for image_data in gallery_images_data:
-            image = GalleryImage(**image_data)
-            db.add(image)
+        if seed_sample_data and db.query(GalleryImage).count() == 0:
+            for image_data in gallery_images_data:
+                image = GalleryImage(**image_data)
+                db.add(image)
 
         # Create default admin user
         admin_username = os.getenv("ADMIN_USERNAME", "admin")
         admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
         admin_email = os.getenv("ADMIN_EMAIL", "admin@restaurant.com")
-
-        admin_user = User(
-            username=admin_username,
-            email=admin_email,
-            hashed_password=get_password_hash(admin_password),
-            is_active=True,
-            is_admin=True
-        )
-        db.add(admin_user)
+        existing_admin = db.query(User).filter(User.username == admin_username).first()
+        if existing_admin is None:
+            admin_user = User(
+                username=admin_username,
+                email=admin_email,
+                hashed_password=get_password_hash(admin_password),
+                is_active=True,
+                is_admin=True,
+            )
+            db.add(admin_user)
 
         db.commit()
-        print("Database initialized with sample data")
-        print(f"Admin user created: username='{admin_username}', password='{admin_password}'")
+        if seed_sample_data:
+            print("Database checked and sample data ensured")
+        print(f"Admin user ensured: username='{admin_username}'")
 
     except Exception as e:
         print(f"Error initializing database: {e}")
