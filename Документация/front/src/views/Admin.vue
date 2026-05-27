@@ -108,12 +108,6 @@
           </button>
         </form>
 
-        <!-- Подсказка -->
-        <div class="mt-6 p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
-          <p class="text-gray-500 text-xs text-center">
-            По умолчанию: admin / admin123
-          </p>
-        </div>
       </div>
     </div>
 
